@@ -24,7 +24,7 @@ echo "Subject: Server Reboot Status" >> ${rebootDate}
 for instance in ${instanceIDs[@]};
 do
     pvtIP=`oci compute instance list-vnics --instance-id ${instance} | jq -r '.data[]."private-ip"'`
-    echo "Reboot Started at $(date +"%T") for Instance with IP: " ${pvtIP} >> ${rebootDate} && oci compute instance action --action ${instanceAction} --instance-id ${instance} --wait-for-state ${instanceState} --wait-interval-seconds ${intervalCheck} >/dev/null | echo "--------------------------------------------------------------------------" >> ${rebootDate} && until nc -z -w30 ${pvtIP} ${instancePort}; do sleep 1; done && echo "quit" | telnet ${pvtIP} ${instancePort} 2>/dev/null | grep -i "Connected" 2>/dev/null 1>> ${rebootDate} && echo "Reboot Finished at $(date +"%T") for Instance with IP: " ${pvtIP} >> ${rebootDate} && echo "--------------------------------------------------------------------------" >> ${rebootDate} && /usr/sbin/sendmail mdizhar@abc.com,izhar@xyzsundyne.com < ${rebootDate} &
+    echo "Reboot Started at $(date +"%T") for Instance with IP: " ${pvtIP} >> ${rebootDate} && oci compute instance action --action ${instanceAction} --instance-id ${instance} --wait-for-state ${instanceState} --wait-interval-seconds ${intervalCheck} >/dev/null | echo "--------------------------------------------------------------------------" >> ${rebootDate} && until nc -z -w30 ${pvtIP} ${instancePort}; do sleep 1; done && echo "quit" | telnet ${pvtIP} ${instancePort} 2>/dev/null | grep -i "Connected" 2>/dev/null 1>> ${rebootDate} && echo "Reboot Finished at $(date +"%T") for Instance with IP: " ${pvtIP} >> ${rebootDate} && echo "--------------------------------------------------------------------------" >> ${rebootDate} && /usr/sbin/sendmail mdizhar@abc.com,izhar@xyz.com < ${rebootDate} &
 done
 
-/usr/sbin/sendmail mdizhar@abc.com,izhar@xyzsundyne.com < ${rebootDate}
+/usr/sbin/sendmail mdizhar@abc.com,izhar@xyz.com < ${rebootDate}
