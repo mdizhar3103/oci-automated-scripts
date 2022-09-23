@@ -14,6 +14,9 @@
 # Note: This is script is configured as per our requirement, kindly modify it before using it. (To understand See if/else block )
 ################################################################################################################
 
+# compartment OCID
+CompID='ocid'
+
 instanceIDs=("ocid1.instance.oc1d"
 "ocid1.instance.oc1d"
 "ocid1.instance.oc1d")
