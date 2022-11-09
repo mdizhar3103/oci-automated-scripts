@@ -139,7 +139,6 @@ patch_details "Patch End Time: $(date +"%T")"
 patch_details "Result: SUCCEEDED"
 get_banner
 
-get_banner 
 PATCH_END_TIME=$(date +"%T")
 echo -e "Oracle VM Database Patching Finished At $PATCH_END_TIME " >> ${log_file}
 get_banner
