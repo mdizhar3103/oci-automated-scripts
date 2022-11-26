@@ -6,7 +6,7 @@ instanceIDs=("ocid1.instance1"
 
 instancePort=3389
 
-statusDate=server_status_`date +"%F"`.log
+statusDate=server_status_`date +"%F_%H_%M_%S"`.log
 echo "Subject: Server Connectivity Status" >> ${statusDate}
 
 
