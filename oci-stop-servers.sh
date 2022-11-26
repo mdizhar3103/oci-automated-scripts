@@ -18,7 +18,7 @@ instanceState='STOPPED'
 intervalCheck=60
 instancePort=22
 
-stopDate=stopped_`date +"%F"`.log
+stopDate=stopped_`date +"%F_%H_%M_%S"`.log
 echo "Subject: Server Stopped Status" >> ${stopDate}
 
 for instance in ${instanceIDs[@]};
