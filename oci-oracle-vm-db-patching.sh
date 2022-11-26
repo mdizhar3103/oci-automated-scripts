@@ -55,7 +55,7 @@ wait_for_result() {
     done
 }
 
-log_file=db_patch_`(date +%Y_%m_%d)`.log
+log_file=db_patch_`(date +%Y_%m_%d_%H_%M_%S)`.log
 
 # Get DB System Details
 get_banner 
