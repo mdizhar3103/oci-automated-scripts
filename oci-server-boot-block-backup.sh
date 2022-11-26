@@ -26,7 +26,7 @@ type='FULL'
 BackupState='AVAILABLE'
 intervalCheck=60
 
-BackupDate=backup_`date +"%F"`.log
+BackupDate=backup_`date +"%F_%H_%M_%S"`.log
 echo "Subject: Volume Backup Status" >> ${BackupDate}
 
 for instance in ${instanceIDs[@]};
