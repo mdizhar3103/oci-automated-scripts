@@ -18,7 +18,7 @@ instanceState='RUNNING'
 intervalCheck=60
 instancePort=22
 
-rebootDate=reboot_`date +"%F"`.log
+rebootDate=reboot_`date +"%F_%H_%M_%S"`.log
 echo "Subject: Server Reboot Status" >> ${rebootDate}
 
 for instance in ${instanceIDs[@]};
