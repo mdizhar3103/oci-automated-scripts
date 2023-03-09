@@ -624,7 +624,7 @@ def display_load_balancers(comp_id):
                 print()
 
 
-def display_ipsec_tunnels(comp_id):
+def display_ipsec_tunnels(comp_id, phase_details = False):
     vpn_details = VPNDetails()
     ipsecs = vpn_details.list_ipsecs(comp_id)
 
@@ -682,49 +682,49 @@ def display_ipsec_tunnels(comp_id):
                     print("\t\t\t{0:>30}:".format('Encryption Domain Config'))
                     print("\t\t\t\t\t{0:>50}: {1:<30}".format('Oracle Traffic Selector', str(oracle_traffic_selector)))
                     print("\t\t\t\t\t{0:>50}: {1:<30}".format('CPE Traffic Selector', str(cpe_traffic_selector)))
-                    
-                    if phase_one_details is not None:
-                        custom_authentication_algorithm = phase_one_details.custom_authentication_algorithm
-                        custom_dh_group = phase_one_details.custom_dh_group
-                        custom_encryption_algorithm = phase_one_details.custom_encryption_algorithm
-                        is_custom_phase_one_config = phase_one_details.is_custom_phase_one_config
-                        is_ike_established = phase_one_details.is_ike_established
-                        lifetime = phase_one_details.lifetime
-                        negotiated_authentication_algorithm = phase_one_details.negotiated_authentication_algorithm
-                        negotiated_dh_group = phase_one_details.negotiated_dh_group
-                        negotiated_encryption_algorithm = phase_one_details.negotiated_encryption_algorithm
-                        print("\t\t\t{0:>30}:".format('Phase One Details'))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('Custom Authentication Algorithm', str(custom_authentication_algorithm)))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('custom_dh_group', str(custom_dh_group)))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('custom_encryption_algorithm', str(custom_encryption_algorithm)))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('is_custom_phase_one_config', str(is_custom_phase_one_config)))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('is_ike_established', str(is_ike_established)))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('lifetime', str(lifetime)))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('negotiated_authentication_algorithm', str(negotiated_authentication_algorithm)))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('negotiated_dh_group', str(negotiated_dh_group)))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('negotiated_encryption_algorithm', str(negotiated_encryption_algorithm)))
+                    if phase_details:
+                        if phase_one_details is not None:
+                            custom_authentication_algorithm = phase_one_details.custom_authentication_algorithm
+                            custom_dh_group = phase_one_details.custom_dh_group
+                            custom_encryption_algorithm = phase_one_details.custom_encryption_algorithm
+                            is_custom_phase_one_config = phase_one_details.is_custom_phase_one_config
+                            is_ike_established = phase_one_details.is_ike_established
+                            lifetime = phase_one_details.lifetime
+                            negotiated_authentication_algorithm = phase_one_details.negotiated_authentication_algorithm
+                            negotiated_dh_group = phase_one_details.negotiated_dh_group
+                            negotiated_encryption_algorithm = phase_one_details.negotiated_encryption_algorithm
+                            print("\t\t\t{0:>30}:".format('Phase One Details'))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}".format('Custom Authentication Algorithm', str(custom_authentication_algorithm)))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}".format('custom_dh_group', str(custom_dh_group)))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}".format('custom_encryption_algorithm', str(custom_encryption_algorithm)))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}".format('is_custom_phase_one_config', str(is_custom_phase_one_config)))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}".format('is_ike_established', str(is_ike_established)))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}".format('lifetime', str(lifetime)))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}".format('negotiated_authentication_algorithm', str(negotiated_authentication_algorithm)))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}".format('negotiated_dh_group', str(negotiated_dh_group)))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}".format('negotiated_encryption_algorithm', str(negotiated_encryption_algorithm)))
 
-                    if phase_two_details is not None:
-                        custom_authentication_algorithm = phase_two_details.custom_authentication_algorithm
-                        dh_group = phase_two_details.dh_group
-                        custom_encryption_algorithm = phase_two_details.custom_encryption_algorithm
-                        is_custom_phase_two_config = phase_two_details.is_custom_phase_two_config
-                        is_esp_established = phase_two_details.is_esp_established
-                        lifetime = phase_two_details.lifetime
-                        is_pfs_enabled = phase_two_details.is_pfs_enabled
-                        negotiated_authentication_algorithm = phase_two_details.negotiated_authentication_algorithm
-                        negotiated_dh_group = phase_two_details.negotiated_dh_group
-                        negotiated_encryption_algorithm = phase_two_details.negotiated_encryption_algorithm
-                        print("\t\t\t{0:>30}:".format('Phase Two Details'))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('Custom Authentication Algorithm', str(custom_authentication_algorithm)))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('custom_dh_group', str(dh_group)))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('custom_encryption_algorithm', str(custom_encryption_algorithm)))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('is_custom_phase_two_config', str(is_custom_phase_two_config)))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('is_esp_established', str(is_esp_established)))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('is_pfs_enabled', str(is_pfs_enabled)))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('lifetime', str(lifetime)))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('negotiated_authentication_algorithm', str(negotiated_authentication_algorithm)))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('negotiated_dh_group', str(negotiated_dh_group)))
-                        print("\t\t\t\t\t{0:>50}: {1:<30}\n".format('negotiated_encryption_algorithm', str(negotiated_encryption_algorithm)))
+                        if phase_two_details is not None:
+                            custom_authentication_algorithm = phase_two_details.custom_authentication_algorithm
+                            dh_group = phase_two_details.dh_group
+                            custom_encryption_algorithm = phase_two_details.custom_encryption_algorithm
+                            is_custom_phase_two_config = phase_two_details.is_custom_phase_two_config
+                            is_esp_established = phase_two_details.is_esp_established
+                            lifetime = phase_two_details.lifetime
+                            is_pfs_enabled = phase_two_details.is_pfs_enabled
+                            negotiated_authentication_algorithm = phase_two_details.negotiated_authentication_algorithm
+                            negotiated_dh_group = phase_two_details.negotiated_dh_group
+                            negotiated_encryption_algorithm = phase_two_details.negotiated_encryption_algorithm
+                            print("\t\t\t{0:>30}:".format('Phase Two Details'))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}".format('Custom Authentication Algorithm', str(custom_authentication_algorithm)))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}".format('custom_dh_group', str(dh_group)))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}".format('custom_encryption_algorithm', str(custom_encryption_algorithm)))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}".format('is_custom_phase_two_config', str(is_custom_phase_two_config)))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}".format('is_esp_established', str(is_esp_established)))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}".format('is_pfs_enabled', str(is_pfs_enabled)))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}".format('lifetime', str(lifetime)))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}".format('negotiated_authentication_algorithm', str(negotiated_authentication_algorithm)))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}".format('negotiated_dh_group', str(negotiated_dh_group)))
+                            print("\t\t\t\t\t{0:>50}: {1:<30}\n".format('negotiated_encryption_algorithm', str(negotiated_encryption_algorithm)))
                     print()
 
