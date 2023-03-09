@@ -375,6 +375,59 @@ class LoadBalancerDetails:
         return lbs
 
 
+class VPNDetails:
+
+    def __init__(self):
+        self.core_client = oci.core.VirtualNetworkClient(config)
+
+    def list_ipsecs(self, comp_id):
+        list_ip_sec_connections_response = self.core_client.list_ip_sec_connections(
+            compartment_id = comp_id,
+            limit = 55,)
+
+        list_ip_sec_connections_objects = list_ip_sec_connections_response.data
+        if is_empty(list_ip_sec_connections_objects):
+            return 
+
+        ipsecs = []
+
+        for list_ip_sec_connection_details in list_ip_sec_connections_objects: 
+            cpe_local_identifier = list_ip_sec_connection_details.cpe_local_identifier
+            cpe_local_identifier_type = list_ip_sec_connection_details.cpe_local_identifier_type
+            display_name = list_ip_sec_connection_details.display_name
+            ocid = list_ip_sec_connection_details.id
+            static_routes = list_ip_sec_connection_details.static_routes
+            ipsecs.append((cpe_local_identifier,  cpe_local_identifier_type, display_name, ocid, static_routes))
+        return ipsecs
+
+    def list_tunnels(self, ipsec_id):
+        list_ip_sec_connection_tunnels_response = self.core_client.list_ip_sec_connection_tunnels(
+            ipsc_id = ipsec_id)
+
+        list_ip_sec_connection_tunnel_objects = list_ip_sec_connection_tunnels_response.data
+        if is_empty(list_ip_sec_connection_tunnel_objects):
+            return
+
+        tunnels = []
+
+        for list_ip_sec_connection_tunnel_details in list_ip_sec_connection_tunnel_objects:
+            display_name = list_ip_sec_connection_tunnel_details.display_name
+            dpd_mode = list_ip_sec_connection_tunnel_details.dpd_mode
+            dpd_timeout_in_sec = list_ip_sec_connection_tunnel_details.dpd_timeout_in_sec
+            encryption_domain_config = list_ip_sec_connection_tunnel_details.encryption_domain_config
+            ike_version = list_ip_sec_connection_tunnel_details.ike_version
+            oracle_can_initiate = list_ip_sec_connection_tunnel_details.oracle_can_initiate
+            phase_one_details = list_ip_sec_connection_tunnel_details.phase_one_details
+            phase_two_details = list_ip_sec_connection_tunnel_details.phase_two_details
+            routing = list_ip_sec_connection_tunnel_details.routing
+            status = list_ip_sec_connection_tunnel_details.status
+            time_status_updated = list_ip_sec_connection_tunnel_details.time_status_updated
+            vpn_ip = list_ip_sec_connection_tunnel_details.vpn_ip
+
+            tunnels.append((display_name, dpd_mode, dpd_timeout_in_sec, encryption_domain_config, ike_version, oracle_can_initiate, phase_one_details, phase_two_details, routing, status, time_status_updated, vpn_ip))
+        return tunnels
+
+
 def display_headers(banner='='):
     print(banner * 200)
 
@@ -569,3 +622,109 @@ def display_load_balancers(comp_id):
                 for backends in backend_set_details.backends:
                     print("\t\t\t\t", backends.name)
                 print()
+
+
+def display_ipsec_tunnels(comp_id):
+    vpn_details = VPNDetails()
+    ipsecs = vpn_details.list_ipsecs(comp_id)
+
+    if ipsecs is None:
+        print('\n---> No IPSecs (CPEs) Found.\n')
+    else:
+        display_headers()
+        print('\n---> IPSecs Connections \n\n')
+        for ipsec in ipsecs:
+            cpe_local_identifier = ipsec[0]
+            cpe_local_identifier_type = ipsec[1]
+            display_name = ipsec[2]
+            ocid = ipsec[3]
+            static_routes = ipsec[4]
+
+            print(f"\t=> {display_name}\n")
+            print("\t{0:>30}: {1:<30}".format('CPE Identifier', cpe_local_identifier))
+            print("\t{0:>30}: {1:<30}".format('CPE Identifier Type', cpe_local_identifier_type))
+            print("\t{0:>30}: {1:<30}".format('Static Routes', static_routes))
+
+            tunnels = vpn_details.list_tunnels(ocid)
+            if tunnels is None:
+                print("\t{0:>30}: {1:<30}\n".format('Associated Tunnels', '0'))
+            else:
+                print("\t{0:>30}: \n".format('Associated Tunnels'))
+                cnt = 0
+                for tunnel in tunnels:
+                    cnt += 1
+                    display_name = tunnel[0] 
+                    dpd_mode = tunnel[1]
+                    dpd_timeout_in_sec = tunnel[2]
+                    encryption_domain_config = tunnel[3]
+                    ike_version = tunnel[4]
+                    oracle_can_initiate = tunnel[5]
+                    phase_one_details = tunnel[6]
+                    phase_two_details = tunnel[7]
+                    routing = tunnel[8]
+                    status = tunnel[9]
+                    time_status_updated = tunnel[10]
+                    vpn_ip = tunnel[11]
+
+                    print(f"\t\t\t{cnt}) {display_name} - {status}\n")
+                    print("\t\t\t{0:>30}: {1:<30}".format('VPN IP', vpn_ip))
+                    print("\t\t\t{0:>30}: {1:<30}".format('Tunnel Status Last Update', str(time_status_updated)))
+                    print("\t\t\t{0:>30}: {1:<30}".format('DPD Mode', dpd_mode))
+                    print("\t\t\t{0:>30}: {1:<30}".format('DPD Timeout In Sec', dpd_timeout_in_sec))
+                    print("\t\t\t{0:>30}: {1:<30}".format('IKE Version', ike_version))
+                    print("\t\t\t{0:>30}: {1:<30}".format('Oracle Can Initiate', oracle_can_initiate))
+                    print("\t\t\t{0:>30}: {1:<30}".format('Routing', routing))
+
+                    if encryption_domain_config is None:
+                        continue
+                    oracle_traffic_selector = encryption_domain_config.oracle_traffic_selector
+                    cpe_traffic_selector = encryption_domain_config.cpe_traffic_selector
+                    print("\t\t\t{0:>30}:".format('Encryption Domain Config'))
+                    print("\t\t\t\t\t{0:>50}: {1:<30}".format('Oracle Traffic Selector', str(oracle_traffic_selector)))
+                    print("\t\t\t\t\t{0:>50}: {1:<30}".format('CPE Traffic Selector', str(cpe_traffic_selector)))
+                    
+                    if phase_one_details is not None:
+                        custom_authentication_algorithm = phase_one_details.custom_authentication_algorithm
+                        custom_dh_group = phase_one_details.custom_dh_group
+                        custom_encryption_algorithm = phase_one_details.custom_encryption_algorithm
+                        is_custom_phase_one_config = phase_one_details.is_custom_phase_one_config
+                        is_ike_established = phase_one_details.is_ike_established
+                        lifetime = phase_one_details.lifetime
+                        negotiated_authentication_algorithm = phase_one_details.negotiated_authentication_algorithm
+                        negotiated_dh_group = phase_one_details.negotiated_dh_group
+                        negotiated_encryption_algorithm = phase_one_details.negotiated_encryption_algorithm
+                        print("\t\t\t{0:>30}:".format('Phase One Details'))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('Custom Authentication Algorithm', str(custom_authentication_algorithm)))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('custom_dh_group', str(custom_dh_group)))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('custom_encryption_algorithm', str(custom_encryption_algorithm)))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('is_custom_phase_one_config', str(is_custom_phase_one_config)))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('is_ike_established', str(is_ike_established)))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('lifetime', str(lifetime)))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('negotiated_authentication_algorithm', str(negotiated_authentication_algorithm)))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('negotiated_dh_group', str(negotiated_dh_group)))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('negotiated_encryption_algorithm', str(negotiated_encryption_algorithm)))
+
+                    if phase_two_details is not None:
+                        custom_authentication_algorithm = phase_two_details.custom_authentication_algorithm
+                        dh_group = phase_two_details.dh_group
+                        custom_encryption_algorithm = phase_two_details.custom_encryption_algorithm
+                        is_custom_phase_two_config = phase_two_details.is_custom_phase_two_config
+                        is_esp_established = phase_two_details.is_esp_established
+                        lifetime = phase_two_details.lifetime
+                        is_pfs_enabled = phase_two_details.is_pfs_enabled
+                        negotiated_authentication_algorithm = phase_two_details.negotiated_authentication_algorithm
+                        negotiated_dh_group = phase_two_details.negotiated_dh_group
+                        negotiated_encryption_algorithm = phase_two_details.negotiated_encryption_algorithm
+                        print("\t\t\t{0:>30}:".format('Phase Two Details'))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('Custom Authentication Algorithm', str(custom_authentication_algorithm)))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('custom_dh_group', str(dh_group)))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('custom_encryption_algorithm', str(custom_encryption_algorithm)))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('is_custom_phase_two_config', str(is_custom_phase_two_config)))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('is_esp_established', str(is_esp_established)))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('is_pfs_enabled', str(is_pfs_enabled)))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('lifetime', str(lifetime)))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('negotiated_authentication_algorithm', str(negotiated_authentication_algorithm)))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}".format('negotiated_dh_group', str(negotiated_dh_group)))
+                        print("\t\t\t\t\t{0:>50}: {1:<30}\n".format('negotiated_encryption_algorithm', str(negotiated_encryption_algorithm)))
+                    print()
+
