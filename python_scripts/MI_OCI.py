@@ -1,4 +1,5 @@
 import oci
+import time
 from datetime import datetime
 
 
@@ -428,6 +429,47 @@ class VPNDetails:
         return tunnels
 
 
+class InstanceDetails:
+    def __init__(self) -> None:
+        self.core_client = oci.core.ComputeClient(config)
+        self.metric_client = oci.monitoring.MonitoringClient(config)
+
+    def list_all_compartments(self, comp_id):
+        list_instances_response = self.core_client.list_instances(
+            compartment_id = comp_id,
+            limit = 97,)
+
+        list_instances_objects = list_instances_response.data
+
+        if is_empty(list_instances_objects):
+            return
+
+        instances = []
+
+        for list_instances_details in list_instances_objects:
+            display_name = list_instances_details.display_name
+            lifecycle_state = list_instances_details.lifecycle_state
+            shape = list_instances_details.shape
+            ocid = list_instances_details.id
+
+            instances.append((ocid, display_name, lifecycle_state, shape))
+        return instances
+
+
+    def instance_utilization(self, comp_id, instance_id):
+        if comp_id is None or instance_id is None:
+            return "No Compartment ID and Instance ID passed"
+
+        metric_detail = oci.monitoring.models.SummarizeMetricsDataDetails()
+        metric_detail.query = 'CPUUtilization[60m]{' + f'resourceId = {instance_id}' + '}.max()'
+        metric_detail.start_time = "2023-03-12T00:00:00.000Z"
+        metric_detail.end_time = "2023-03-13T00:00:00.000Z"
+        metric_detail.resolution = "1h"
+        metric_detail.namespace = "oci_computeagent"
+
+        return self.metric_client.summarize_metrics_data(comp_id, metric_detail).data
+
+
 def display_headers(banner='='):
     print(banner * 200)
 
@@ -643,7 +685,7 @@ def display_ipsec_tunnels(comp_id, phase_details = False):
             print(f"\t=> {display_name}\n")
             print("\t{0:>30}: {1:<30}".format('CPE Identifier', cpe_local_identifier))
             print("\t{0:>30}: {1:<30}".format('CPE Identifier Type', cpe_local_identifier_type))
-            print("\t{0:>30}: {1:<30}".format('Static Routes', static_routes))
+            print("\t{0:>30}: {1:<30}".format('Static Routes', str(static_routes)))
 
             tunnels = vpn_details.list_tunnels(ocid)
             if tunnels is None:
@@ -727,4 +769,37 @@ def display_ipsec_tunnels(comp_id, phase_details = False):
                             print("\t\t\t\t\t{0:>50}: {1:<30}".format('negotiated_dh_group', str(negotiated_dh_group)))
                             print("\t\t\t\t\t{0:>50}: {1:<30}\n".format('negotiated_encryption_algorithm', str(negotiated_encryption_algorithm)))
                     print()
+
+
+def display_instances(comp_id):
+    instance_details = InstanceDetails()
+    compute_instances = instance_details.list_all_compartments(comp_id)
+
+    if compute_instances is None:
+        print('\n---> No Compute Instances Found.\n')
+    else:
+        display_headers()
+        print('\n---> Compute Instances\n')
+        for ins in compute_instances:
+            instance_id = ins[0]
+            display_name = ins[1]
+            lifecycle_state = ins[2]
+            shape = ins[3]
+            last_24_utilization = ''
+            txt = f"\n\t{display_name}\t\t{lifecycle_state}\t\t{shape}"
+            print(txt)
+            if lifecycle_state == 'STOPPED':
+                pass
+            else:
+                time.sleep(5)
+                last_utilz = instance_details.instance_utilization(comp_id, instance_id)
+                if is_empty(last_utilz):
+                    continue
+                print("\tLast 24 hrs CPU Utilizations")
+                for utlization in last_utilz[0].aggregated_datapoints:
+                    # aggregated_datapoints
+                    cpu_util = utlization.value
+                    ts = utlization.timestamp
+                    print(f'\t\t{cpu_util}\t{ts}')
+        print()
 
