@@ -33,9 +33,12 @@ for comp_name, comp_id in compartments.items():
 
     # Get DB Systems
     display_db_systems(comp_id)
-    
-    # Get Ipsec Tunnels
-    display_ipsec_tunnels(comp_id)
 
     # Get Load Balancers
     display_load_balancers(comp_id)
+
+    # Get Ipsec Tunnels
+    display_ipsec_tunnels(comp_id, phase_details= False)
+
+    # Get Instances
+    display_instances(comp_id, show_utilzation=False)
