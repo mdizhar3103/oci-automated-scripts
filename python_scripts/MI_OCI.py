@@ -462,8 +462,11 @@ class InstanceDetails:
 
         metric_detail = oci.monitoring.models.SummarizeMetricsDataDetails()
         metric_detail.query = 'CPUUtilization[60m]{' + f'resourceId = {instance_id}' + '}.max()'
-        metric_detail.start_time = "2023-03-12T00:00:00.000Z"
-        metric_detail.end_time = "2023-03-13T00:00:00.000Z"
+        now_dt = datetime.today()
+        end_dt = datetime(now_dt.year, now_dt.month, now_dt.day, now_dt.hour, now_dt.minute)
+        start_dt = datetime(now_dt.year, now_dt.month, now_dt.day - 1, now_dt.hour, now_dt.minute)
+        metric_detail.start_time = "{}.000Z".format(start_dt.isoformat())
+        metric_detail.end_time = "{}.000Z".format(end_dt.isoformat())
         metric_detail.resolution = "1h"
         metric_detail.namespace = "oci_computeagent"
 
@@ -771,7 +774,7 @@ def display_ipsec_tunnels(comp_id, phase_details = False):
                     print()
 
 
-def display_instances(comp_id):
+def display_instances(comp_id, show_utilzation = False):
     instance_details = InstanceDetails()
     compute_instances = instance_details.list_all_compartments(comp_id)
 
@@ -788,18 +791,19 @@ def display_instances(comp_id):
             last_24_utilization = ''
             txt = f"\n\t{display_name}\t\t{lifecycle_state}\t\t{shape}"
             print(txt)
-            if lifecycle_state == 'STOPPED':
-                pass
-            else:
-                time.sleep(5)
-                last_utilz = instance_details.instance_utilization(comp_id, instance_id)
-                if is_empty(last_utilz):
-                    continue
-                print("\tLast 24 hrs CPU Utilizations")
-                for utlization in last_utilz[0].aggregated_datapoints:
-                    # aggregated_datapoints
-                    cpu_util = utlization.value
-                    ts = utlization.timestamp
-                    print(f'\t\t{cpu_util}\t{ts}')
+            if show_utilzation:
+                if lifecycle_state == 'STOPPED':
+                    pass
+                else:
+                    time.sleep(5)
+                    last_utilz = instance_details.instance_utilization(comp_id, instance_id)
+                    if is_empty(last_utilz):
+                        continue
+                    print("\tLast 24 hrs CPU Utilizations")
+                    for utlization in last_utilz[0].aggregated_datapoints:
+                        # aggregated_datapoints
+                        cpu_util = int(utlization.value)
+                        ts = utlization.timestamp
+                        print(f'\t\t{cpu_util}%\t{ts}')
         print()
 
