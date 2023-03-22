@@ -20,6 +20,7 @@ parser.add_argument("-ddbsys", "--display_db_systems", help="Display DB Systems"
 parser.add_argument("-dlbs", "--display_lbs", help="Display Load Balancers", action="store_true")
 parser.add_argument("-dvpns", "--display_vpns", help="Display IPSec Tunnels", action="store_true")
 parser.add_argument("-dins", "--display_instances", help="Display Compute Instances", action="store_true")
+parser.add_argument("--show_util", help="Show last 24 hours utlization of server", action="store_true")
 
 args = parser.parse_args()
 
@@ -64,5 +65,7 @@ for comp_name, comp_id in compartments.items():
         display_ipsec_tunnels(comp_id, phase_details= False)                    # Get Ipsec Tunnels
 
 
-    if args.display_instances or args.display_all:
+    if (args.display_instances or args.display_all) and not args.show_util:
         display_instances(comp_id, show_utilzation=False)                       # Get Instances
+    else:
+        display_instances(comp_id, show_utilzation=True)
