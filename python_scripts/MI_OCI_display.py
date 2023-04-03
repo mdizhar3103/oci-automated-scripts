@@ -19,6 +19,7 @@ parser.add_argument("-dosms", "--display_osms", help="Display OSMS", action="sto
 parser.add_argument("-ddbsys", "--display_db_systems", help="Display DB Systems", action="store_true")
 parser.add_argument("-dlbs", "--display_lbs", help="Display Load Balancers", action="store_true")
 parser.add_argument("-dvpns", "--display_vpns", help="Display IPSec Tunnels", action="store_true")
+parser.add_argument("--show_phases", help="Display IPSec Tunnels phase details", action="store_true")
 parser.add_argument("-dins", "--display_instances", help="Display Compute Instances", action="store_true")
 parser.add_argument("--show_util", help="Show last 24 hours utlization of server", action="store_true")
 
@@ -61,11 +62,17 @@ for comp_name, comp_id in compartments.items():
         display_load_balancers(comp_id)                                         # Get Load Balancers
 
 
-    if args.display_vpns or args.display_all:
+    if (args.display_vpns or args.display_all) and not args.show_phases:
         display_ipsec_tunnels(comp_id, phase_details= False)                    # Get Ipsec Tunnels
+    elif (args.display_vpns or args.display_all) and args.show_phases:
+        display_ipsec_tunnels(comp_id, phase_details= True)
+    elif (not args.display_vpns or args.display_all) and args.show_phases:
+        raise SyntaxError('show_phases must be used with display_vpns option')
 
 
     if (args.display_instances or args.display_all) and not args.show_util:
         display_instances(comp_id, show_utilzation=False)                       # Get Instances
-    else:
+    elif (args.display_instances or args.display_all) and args.show_util:
         display_instances(comp_id, show_utilzation=True)
+    elif (not args.display_instances or args.display_all) and args.show_util:
+        raise SyntaxError('show_util must be used with display_instances option')
