@@ -462,8 +462,8 @@ class InstanceDetails:
             return "No Compartment ID and Instance ID passed"
 
         metric_detail = oci.monitoring.models.SummarizeMetricsDataDetails()
-        metric_detail.query = 'CPUUtilization[60m]{' + f'resourceId = {instance_id}' + '}.max()'
-        now_dt = datetime.today()
+        metric_detail.query = 'CPUUtilization[60m]{' + f'resourceId = {instance_id}' + '}.mean()'
+        now_dt = datetime.utcnow()
         end_dt = datetime(now_dt.year, now_dt.month, now_dt.day, now_dt.hour, now_dt.minute)
         start_dt = datetime(now_dt.year, now_dt.month, now_dt.day - 1, now_dt.hour, now_dt.minute)
         metric_detail.start_time = "{}.000Z".format(start_dt.isoformat())
