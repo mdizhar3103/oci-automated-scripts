@@ -513,8 +513,8 @@ def latest_announcement(announcements):
         print('\t{0:>15}: {1:<15}'.format('Summary', str(summary)))
         print('\t{0:>15}: {1:<15}'.format('Ticket Number', str(reference_ticket_number)))
         print('\t{0:>15}: {1:<15}'.format('Services', str(services)))
-        print('\t{0:>15}: {1:<15}'.format(time_one_type, str(time_one_value)))
-        print('\t{0:>15}: {1:<15}'.format(time_two_type, str(time_two_value)))
+        print('\t{0:>15}: {1:<15}'.format(str(time_one_type), str(time_one_value)))
+        print('\t{0:>15}: {1:<15}'.format(str(time_two_type), str(time_two_value)))
         print('\t{0:>15}: {1:<15}'.format('Update Time', time_updated))
 
 
