@@ -22,4 +22,9 @@ oci -i
 PROBLEM_ID='ocid1.cloudguardproblem.oc1.'
 
 oci cloud-guard impacted-resource-summary list-impacted-resources --problem-id  ${PROBLEM_ID} --all | jq -r '.data.items[]."resource-name"'
+
+## Manual Backup List
+comp_id='ocid1.compartment.oc1'
+oci bv backup list -c $comp_id --query 'data[?"source-type" == `MANUAL`].{name: "display-name",type: "source-type", time_created: "time-created"}' --output table --all
+oci bv boot-volume-backup list -c $comp_id --query 'data[?"source-type" == `MANUAL`].{name: "display-name",type: "source-type", time_created: "time-created"}' --output table --all
 ```
